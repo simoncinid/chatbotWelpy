@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Welpy Chat Widget</title>
+  <style>
+    :root {
+      --welpy-green: #32c68a;
+      --welpy-light: #e6f6f1;
+      --welpy-dark: #26795d;
+      --welpy-gray: #f0f0f0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    #chat-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background-color: var(--welpy-green);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: background 0.3s;
+      z-index: 999;
+    }
+
+    #chat-toggle:hover {
+      background-color: var(--welpy-dark);
+    }
+
+    #chat-widget {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 340px;
+      height: 460px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 998;
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    #chat-header {
+      background: var(--welpy-green);
+      color: white;
+      padding: 0.9rem;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.05rem;
+      position: relative;
+    }
+
+    #chat-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    #chat-restart {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #chat-box {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      background-color: var(--welpy-light);
+    }
+
+    .message {
+      max-width: 85%;
+      padding: 0.6rem 1rem;
+      border-radius: 1rem;
+      font-size: 0.95rem;
+      line-height: 1.3;
+    }
+
+    .typing {
+        align-self: flex-start;
+        background: white;
+        color: #333;
+        border-radius: 1rem;
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+        display: flex;
+        gap: 4px;
+        max-width: fit-content;
+    }
+
+    .typing span {
+        animation: blink 1.2s infinite;
+        animation-delay: calc(var(--i) * 0.2s);
+        opacity: 0.4;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 0.2; }
+        50% { opacity: 1; }
+    }
+
+
+    .user {
+      align-self: flex-end;
+      background: var(--welpy-green);
+      color: white;
+    }
+
+    .bot {
+      align-self: flex-start;
+      background: white;
+      color: #333;
+    }
+
+    #chat-form {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+
+    #chat-input {
+      flex: 1;
+      border: none;
+      padding: 0.9rem;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    #chat-send {
+      background: var(--welpy-green);
+      color: white;
+      border: none;
+      padding: 0 1rem;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+
+    #chat-prompts {
+      padding: 0.5rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background-color: var(--welpy-light);
+      border-top: 1px solid #ccc;
+    }
+
+    .prompt {
+      background: var(--welpy-gray);
+      color: #333;
+      padding: 0.5rem 0.9rem;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .prompt:hover {
+      background: var(--welpy-green);
+      color: white;
+    }
+
+    @media (max-width: 420px) {
+      #chat-widget {
+        width: 95%;
+        right: 2.5%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Chat Toggle Button -->
+<div id="chat-toggle">💬</div>
+
+<!-- Chat Widget -->
+<div id="chat-widget">
+  <div id="chat-header">
+    Hai bisogno di aiuto?
+    <div id="chat-restart" title="Riavvia conversazione">⟳</div>
+    <div id="chat-close" title="Chiudi">×</div>
+  </div>
+  <div id="chat-box"></div>
+  <div id="chat-prompts">
+    <div class="prompt">Quanto mi servirà per andare in pensione?</div>
+    <div class="prompt">Cos'è la pensione integrativa?</div>
+    <div class="prompt">Quando potrò andare in pensione?</div>
+    <div class="prompt">Come funziona il riscatto della laurea?</div>
+  </div>
+  <form id="chat-form">
+    <input type="text" id="chat-input" placeholder="Scrivi qui..." autocomplete="off" required />
+    <button type="submit" id="chat-send">➤</button>
+  </form>
+</div>
+
+<script>
+  const toggle = document.getElementById('chat-toggle');
+  const widget = document.getElementById('chat-widget');
+  const form = document.getElementById('chat-form');
+  const input = document.getElementById('chat-input');
+  const box = document.getElementById('chat-box');
+  const prompts = document.querySelectorAll('.prompt');
+  const promptBox = document.getElementById('chat-prompts');
+  const closeBtn = document.getElementById('chat-close');
+  const restartBtn = document.getElementById('chat-restart');
+
+  let threadId = null;
+  let hasSentFirstMessage = false;
+
+  toggle.addEventListener('click', () => {
+    widget.style.display = 'flex';
+  });
+
+  closeBtn.addEventListener('click', () => {
+    widget.style.display = 'none';
+  });
+
+  restartBtn.addEventListener('click', () => {
+    threadId = null;
+    hasSentFirstMessage = false;
+    box.innerHTML = '';
+    promptBox.style.display = 'flex';
+  });
+
+  function appendMessage(text, sender) {
+    const msg = document.createElement('div');
+    msg.className = `message ${sender}`;
+    msg.innerText = text;
+    box.appendChild(msg);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function showTyping() {
+    const typing = document.createElement('div');
+    typing.className = 'typing';
+    typing.id = 'typing-indicator';
+
+    for (let i = 1; i <= 3; i++) {
+        const dot = document.createElement('span');
+        dot.innerText = '●';
+        dot.style.setProperty('--i', i);
+        typing.appendChild(dot);
+    }
+
+    box.appendChild(typing);
+    box.scrollTop = box.scrollHeight;
+    }
+
+    function removeTyping() {
+    const typing = document.getElementById('typing-indicator');
+    if (typing) typing.remove();
+    }
+
+
+  async function sendMessage(text) {
+    appendMessage(text, 'user');
+    input.value = '';
+
+    if (!hasSentFirstMessage) {
+      hasSentFirstMessage = true;
+      promptBox.style.display = 'none';
+    }
+
+    try {
+        showTyping();
+
+        const res = await fetch('https://welpy-6gd9.onrender.com/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+            message: text,
+            thread_id: threadId
+            })
+        });
+
+        const data = await res.json();
+        threadId = data.thread_id;
+        removeTyping();
+        appendMessage(data.response, 'bot');
+        } catch (err) {
+        removeTyping();
+        appendMessage('Errore di connessione. Riprova più tardi.', 'bot');
+        }
+
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (text) sendMessage(text);
+  });
+
+  prompts.forEach(p => {
+    p.addEventListener('click', () => {
+      sendMessage(p.innerText);
+    });
+  });
+</script>
+
+</body>
+</html>
