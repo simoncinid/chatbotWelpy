@@ -4,6 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Welpy Chat Widget</title>
+
+  <!-- Marked.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    // Abilita supporto newline → <br>
+    marked.setOptions({
+      breaks: true
+    });
+  </script>
+
   <style>
     :root {
       --welpy-green: #32c68a;
@@ -56,14 +66,8 @@
     }
 
     @keyframes fadeInUp {
-      from {
-        transform: translateY(20px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
     #chat-header {
@@ -120,28 +124,27 @@
     }
 
     .typing {
-        align-self: flex-start;
-        background: white;
-        color: #333;
-        border-radius: 1rem;
-        padding: 0.6rem 1rem;
-        font-size: 0.95rem;
-        display: flex;
-        gap: 4px;
-        max-width: fit-content;
+      align-self: flex-start;
+      background: white;
+      color: #333;
+      border-radius: 1rem;
+      padding: 0.6rem 1rem;
+      font-size: 0.95rem;
+      display: flex;
+      gap: 4px;
+      max-width: fit-content;
     }
 
     .typing span {
-        animation: blink 1.2s infinite;
-        animation-delay: calc(var(--i) * 0.2s);
-        opacity: 0.4;
+      animation: blink 1.2s infinite;
+      animation-delay: calc(var(--i) * 0.2s);
+      opacity: 0.4;
     }
 
     @keyframes blink {
-        0%, 100% { opacity: 0.2; }
-        50% { opacity: 1; }
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
     }
-
 
     .user {
       align-self: flex-end;
@@ -266,7 +269,7 @@
   function appendMessage(text, sender) {
     const msg = document.createElement('div');
     msg.className = `message ${sender}`;
-    msg.innerText = text;
+    msg.innerHTML = sender === 'bot' ? marked.parse(text) : text;
     box.appendChild(msg);
     box.scrollTop = box.scrollHeight;
   }
@@ -275,54 +278,48 @@
     const typing = document.createElement('div');
     typing.className = 'typing';
     typing.id = 'typing-indicator';
-
     for (let i = 1; i <= 3; i++) {
-        const dot = document.createElement('span');
-        dot.innerText = '●';
-        dot.style.setProperty('--i', i);
-        typing.appendChild(dot);
+      const dot = document.createElement('span');
+      dot.innerText = '●';
+      dot.style.setProperty('--i', i);
+      typing.appendChild(dot);
     }
-
     box.appendChild(typing);
     box.scrollTop = box.scrollHeight;
-    }
+  }
 
-    function removeTyping() {
+  function removeTyping() {
     const typing = document.getElementById('typing-indicator');
     if (typing) typing.remove();
-    }
-
+  }
 
   async function sendMessage(text) {
     appendMessage(text, 'user');
     input.value = '';
-
     if (!hasSentFirstMessage) {
       hasSentFirstMessage = true;
       promptBox.style.display = 'none';
     }
 
     try {
-        showTyping();
+      showTyping();
+      const res = await fetch('https://welpy-6gd9.onrender.com/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          thread_id: threadId
+        })
+      });
 
-        const res = await fetch('https://welpy-6gd9.onrender.com/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-            message: text,
-            thread_id: threadId
-            })
-        });
-
-        const data = await res.json();
-        threadId = data.thread_id;
-        removeTyping();
-        appendMessage(data.response, 'bot');
-        } catch (err) {
-        removeTyping();
-        appendMessage('Errore di connessione. Riprova più tardi.', 'bot');
-        }
-
+      const data = await res.json();
+      threadId = data.thread_id;
+      removeTyping();
+      appendMessage(data.response, 'bot');
+    } catch (err) {
+      removeTyping();
+      appendMessage('Errore di connessione. Riprova più tardi.', 'bot');
+    }
   }
 
   form.addEventListener('submit', e => {
