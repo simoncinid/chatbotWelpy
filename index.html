@@ -56,11 +56,11 @@
     .message{max-width:85%;padding:.6rem 1rem;border-radius:1rem;font-size:.95rem;
       line-height:1.3;white-space:pre-line;overflow-x:auto;scrollbar-width:none;
       -ms-overflow-style:none}
-    .message::-webkit-scrollbar{display:none}              /* scrollbar invisibile */
+    .message::-webkit-scrollbar{display:none}
     .user{align-self:flex-end;background:var(--welpy-green);color:#fff}
     .bot {align-self:flex-start;background:#fff;color:#333;max-width:100%}
 
-    /* markdown: liste & enfasi */
+    /* markdown styling */
     .bot ul,.bot ol{margin:.4rem 0;padding-left:1.2rem}
     .bot ul{list-style-type:disc}
     .bot ol{list-style-type:decimal}
@@ -73,7 +73,7 @@
       vertical-align:top;word-break:break-word}
     .bot th{background:var(--welpy-light);font-weight:600}
 
-    /* blink typing */
+    /* typing */
     .typing{align-self:flex-start;background:#fff;color:#333;border-radius:1rem;
       padding:.6rem 1rem;font-size:.95rem;display:flex;gap:4px;max-width:fit-content}
     .typing span{animation:blink 1.2s infinite;animation-delay:calc(var(--i)*.2s);opacity:.4}
@@ -143,18 +143,8 @@ let threadId=null, firstMsg=false;
 function appendMessage(text, sender){
   const msg = document.createElement('div');
   msg.className = `message ${sender}`;
-
-  if (sender === 'bot'){
-    /* 1. se arriva un oggetto, prova a estrarre markdown */
-    if (typeof text === 'object' && text !== null){
-      text = text.markdown ?? JSON.stringify(text, null, 2);   // pretty‑print
-    }
-    /* 2. ora è sicuramente stringa → markdown → html */
-    msg.innerHTML = marked.parse(text);
-  } else {
-    msg.textContent = text;
-  }
-
+  if(sender==='bot') msg.innerHTML = marked.parse(text);
+  else               msg.textContent = text;
   box.appendChild(msg);
   box.scrollTop = box.scrollHeight;
 }
@@ -178,20 +168,32 @@ async function sendMessage(txt){
   if(!firstMsg){firstMsg=true;promptBox.style.display='none';}
   showTyping();
   try{
-    const res=await fetch('https://welpy-1.onrender.com/chat',{
+    const res = await fetch('https://welpy-1.onrender.com/chat',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:txt,thread_id:threadId})
+      body: JSON.stringify({ message:txt, thread_id:threadId })
     });
-    const data=await res.json();threadId=data.thread_id;
-    console.log('↩️  payload ricevuto:', data);
-    removeTyping();appendMessage(data.response,'bot');
+    const data = await res.json();
+    threadId = data.thread_id;
+
+    /* pulisci markdown: togli i fence ```markdown ... ``` */
+    let raw   = typeof data.response==='string'
+                ? data.response
+                : JSON.stringify(data.response,null,2);
+
+    const clean = raw
+      .replace(/^```(?:markdown)?\n?/i,'')
+      .replace(/```$/,'');
+
+    removeTyping();
+    appendMessage(clean,'bot');
   }catch{
-    removeTyping();appendMessage('Errore di connessione. Riprova più tardi.','bot');
+    removeTyping();
+    appendMessage('Errore di connessione. Riprova più tardi.','bot');
   }
 }
 
 /* events */
-form.onsubmit=e=>{e.preventDefault();const v=input.value.trim();if(v)sendMessage(v);}
+form.onsubmit = e => {e.preventDefault();const v=input.value.trim();if(v)sendMessage(v);}
 prompts.forEach(p=>p.onclick=()=>sendMessage(p.textContent));
 </script>
 
