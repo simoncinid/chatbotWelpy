@@ -140,12 +140,23 @@ const input    = document.getElementById('chat-input');
 let threadId=null, firstMsg=false;
 
 /* UI helpers */
-function appendMessage(text,sender){
-  const msg=document.createElement('div');
-  msg.className=`message ${sender}`;
-  msg.innerHTML=sender==='bot'?marked.parse(text):text;
+function appendMessage(text, sender){
+  const msg = document.createElement('div');
+  msg.className = `message ${sender}`;
+
+  if (sender === 'bot'){
+    /* 1. se arriva un oggetto, prova a estrarre markdown */
+    if (typeof text === 'object' && text !== null){
+      text = text.markdown ?? JSON.stringify(text, null, 2);   // pretty‑print
+    }
+    /* 2. ora è sicuramente stringa → markdown → html */
+    msg.innerHTML = marked.parse(text);
+  } else {
+    msg.textContent = text;
+  }
+
   box.appendChild(msg);
-  box.scrollTop=box.scrollHeight;
+  box.scrollTop = box.scrollHeight;
 }
 function showTyping(){
   const t=document.createElement('div');t.className='typing';t.id='typing-indicator';
