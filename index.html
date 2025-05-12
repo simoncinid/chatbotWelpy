@@ -183,6 +183,7 @@ async function sendMessage(txt){
       body:JSON.stringify({message:txt,thread_id:threadId})
     });
     const data=await res.json();threadId=data.thread_id;
+    console.log('↩️  payload ricevuto:', data);
     removeTyping();appendMessage(data.response,'bot');
   }catch{
     removeTyping();appendMessage('Errore di connessione. Riprova più tardi.','bot');
