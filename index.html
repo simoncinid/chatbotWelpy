@@ -10,7 +10,7 @@
   <script>
     marked.setOptions({ breaks:true, gfm:true });
 
-    /* renderer per i blocchi di codice */
+    /* renderer per blocchi di codice */
     const renderer = new marked.Renderer();
     renderer.code = c => `<div class="code-block">${c}</div>`;
     marked.use({ renderer });
@@ -54,24 +54,17 @@
 
     /* messaggi */
     .message{
-      max-width:85%;
-      padding:.6rem 1rem;
-      border-radius:1rem;
-      font-size:.95rem;
-      line-height:1.3;
-      white-space:pre-line;
-
-      overflow-x:auto;              /* scroll orizzontale se serve  */
-      overflow-y:visible;           /* 🔸 NO scrollbar verticale     */
-      max-height:none;              /* 🔸 può crescere liberamente   */
-
-      scrollbar-width:none;
-      -ms-overflow-style:none;
-    }
-
+      flex:0 0 auto;                       /* 🔸 non si restringe in altezza */
+      max-height:none!important;           /* 🔸 nessun limite verticale     */
+      overflow-y:visible!important;
+      max-width:85%;padding:.6rem 1rem;border-radius:1rem;font-size:.95rem;
+      line-height:1.3;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
     .message::-webkit-scrollbar{display:none}
-    .user{align-self:flex-end;background:var(--welpy-green);color:#fff}
-    .bot {align-self:flex-start;background:#fff;color:#333;max-width:100%}
+
+    .user{align-self:flex-end;background:var(--welpy-green);color:#fff;
+      white-space:pre-line;}               /* mantiene \n dell’utente        */
+    .bot {align-self:flex-start;background:#fff;color:#333;max-width:100%;
+      white-space:normal;}                 /* evita doppi newline            */
 
     /* markdown styling */
     .bot ul,.bot ol{margin:.4rem 0;padding-left:1.2rem}
@@ -114,10 +107,8 @@
 </head>
 <body>
 
-<!-- Toggle -->
 <div id="chat-toggle">💬</div>
 
-<!-- Widget -->
 <div id="chat-widget">
   <div id="chat-header">Hai bisogno di aiuto?
     <div id="chat-restart" title="Riavvia">⟳</div>
@@ -152,27 +143,26 @@ const input    = document.getElementById('chat-input');
 
 let threadId=null, firstMsg=false;
 
-/* UI helpers */
-function appendMessage(text, sender){
-  const msg = document.createElement('div');
-  msg.className = `message ${sender}`;
-  if(sender==='bot') msg.innerHTML = marked.parse(text);
-  else               msg.textContent = text;
-  box.appendChild(msg);
-  box.scrollTop = box.scrollHeight;
+/* helpers */
+function appendMessage(html,sender){
+  const m=document.createElement('div');
+  m.className=`message ${sender}`;
+  if(sender==='bot') m.innerHTML=marked.parse(html);
+  else               m.textContent=html;
+  box.appendChild(m); box.scrollTop=box.scrollHeight;
 }
 function showTyping(){
   const t=document.createElement('div');t.className='typing';t.id='typing-indicator';
-  for(let i=1;i<=3;i++){const dot=document.createElement('span');dot.textContent='●';
-    dot.style.setProperty('--i',i);t.appendChild(dot);}
+  for(let i=1;i<=3;i++){const s=document.createElement('span');s.textContent='●';
+    s.style.setProperty('--i',i);t.appendChild(s);}
   box.appendChild(t);box.scrollTop=box.scrollHeight;
 }
 const removeTyping=()=>document.getElementById('typing-indicator')?.remove();
 
-/* open/close/restart */
-toggle.onclick = () => widget.style.display='flex';
-closeBtn.onclick= () => widget.style.display='none';
-restart.onclick = () => {threadId=null;firstMsg=false;box.innerHTML='';promptBox.style.display='flex';};
+/* UI */
+toggle.onclick = ()=>widget.style.display='flex';
+closeBtn.onclick= ()=>widget.style.display='none';
+restart.onclick = ()=>{threadId=null;firstMsg=false;box.innerHTML='';promptBox.style.display='flex';};
 
 /* send */
 async function sendMessage(txt){
@@ -181,32 +171,21 @@ async function sendMessage(txt){
   if(!firstMsg){firstMsg=true;promptBox.style.display='none';}
   showTyping();
   try{
-    const res = await fetch('https://welpy-1.onrender.com/chat',{
+    const res=await fetch('https://welpy-1.onrender.com/chat',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ message:txt, thread_id:threadId })
+      body:JSON.stringify({message:txt,thread_id:threadId})
     });
-    const data = await res.json();
-    threadId = data.thread_id;
-
-    /* pulisci markdown: togli i fence ```markdown ... ``` */
-    let raw   = typeof data.response==='string'
-                ? data.response
-                : JSON.stringify(data.response,null,2);
-
-    const clean = raw
-      .replace(/^```(?:markdown)?\n?/i,'')
-      .replace(/```$/,'');
-
-    removeTyping();
-    appendMessage(clean,'bot');
+    const data=await res.json();threadId=data.thread_id;
+    let raw=typeof data.response==='string'?data.response:JSON.stringify(data.response,null,2);
+    const clean=raw.replace(/^```(?:markdown)?\n?/i,'').replace(/```$/,'');
+    removeTyping();appendMessage(clean,'bot');
   }catch{
-    removeTyping();
-    appendMessage('Errore di connessione. Riprova più tardi.','bot');
+    removeTyping();appendMessage('Errore di connessione. Riprova più tardi.','bot');
   }
 }
 
 /* events */
-form.onsubmit = e => {e.preventDefault();const v=input.value.trim();if(v)sendMessage(v);}
+form.onsubmit=e=>{e.preventDefault();const v=input.value.trim();if(v)sendMessage(v);}
 prompts.forEach(p=>p.onclick=()=>sendMessage(p.textContent));
 </script>
 
