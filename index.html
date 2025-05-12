@@ -19,96 +19,119 @@
   <style>
     :root{
       --welpy-green:#32c68a;
+      --welpy-green-dark:#28a774;
       --welpy-light:#e6f6f1;
-      --welpy-dark :#26795d;
-      --welpy-gray :#f0f0f0;
+      --welpy-gray:#f0f0f0;
     }
-    body{font-family:'Segoe UI',sans-serif}
+    body{margin:0;font-family:'Segoe UI',sans-serif}
 
-    /* ─── toggle ─── */
-    #chat-toggle{position:fixed;bottom:20px;right:20px;z-index:999;
-      width:60px;height:60px;border-radius:50%;display:flex;justify-content:center;
-      align-items:center;background:var(--welpy-green);color:#fff;font-size:28px;
-      cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:background .3s}
-    #chat-toggle:hover{background:var(--welpy-dark)}
+    /* ─── FAB toggle ─── */
+    #chat-toggle{
+      position:fixed;bottom:20px;right:20px;z-index:999;
+      width:60px;height:60px;border-radius:50%;
+      display:flex;justify-content:center;align-items:center;
+      background:var(--welpy-green);color:#fff;font-size:28px;cursor:pointer;
+      box-shadow:0 4px 12px rgba(0,0,0,.25);
+      transition:transform .2s,background .3s;
+    }
+    #chat-toggle:hover{background:var(--welpy-green-dark);transform:scale(1.06)}
+    #chat-toggle:active{transform:scale(.95)}
 
     /* ─── widget ─── */
-    #chat-widget{position:fixed;bottom:90px;right:20px;width:340px;height:460px;
-      background:#fff;border-radius:16px;display:none;flex-direction:column;
-      overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:998;
-      animation:fadeInUp .3s ease-out}
-    @keyframes fadeInUp{from{transform:translateY(20px);opacity:0}
+    #chat-widget{
+      position:fixed;bottom:90px;right:20px;width:340px;height:480px;
+      background:#fff;border-radius:20px;display:none;flex-direction:column;
+      overflow:hidden;box-shadow:0 8px 28px rgba(0,0,0,.25);z-index:998;
+      animation:fadeInUp .35s ease-out;
+    }
+    @keyframes fadeInUp{from{transform:translateY(24px);opacity:0}
                         to  {transform:translateY(0);opacity:1}}
 
-    /* header */
-    #chat-header{background:var(--welpy-green);color:#fff;padding:.9rem;text-align:center;
-      font-weight:700;font-size:1.05rem;position:relative}
-    #chat-close{position:absolute;top:10px;right:12px;font-size:1.2rem;cursor:pointer}
-    #chat-restart{position:absolute;top:10px;left:12px;font-size:1.2rem;cursor:pointer;
-      background:rgba(255,255,255,.2);border-radius:50%;width:24px;height:24px;
-      display:flex;justify-content:center;align-items:center}
+    /* header con gradiente */
+    #chat-header{
+      background:linear-gradient(135deg,var(--welpy-green) 0%,#3ed19a 100%);
+      color:#fff;padding:.95rem;text-align:center;font-weight:700;font-size:1.07rem;
+      position:relative;
+    }
+    #chat-close,#chat-restart{
+      position:absolute;top:10px;font-size:1.2rem;cursor:pointer;color:#fff}
+    #chat-close{right:12px}
+    #chat-restart{left:12px;background:rgba(255,255,255,.25);border-radius:50%;
+      width:24px;height:24px;display:flex;justify-content:center;align-items:center}
 
-    /* box */
-    #chat-box{flex:1;padding:1rem;overflow-y:auto;display:flex;flex-direction:column;
-      gap:.6rem;background:var(--welpy-light)}
+    /* box messaggi */
+    #chat-box{
+      flex:1;padding:1rem;overflow-y:auto;display:flex;flex-direction:column;gap:.7rem;
+      background:var(--welpy-light);
+    }
 
     /* messaggi */
     .message{
-      flex:0 0 auto;                       /* 🔸 non si restringe in altezza */
-      max-height:none!important;           /* 🔸 nessun limite verticale     */
-      overflow-y:visible!important;
-      max-width:85%;padding:.6rem 1rem;border-radius:1rem;font-size:.95rem;
-      line-height:1.3;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+      flex:0 0 auto;max-width:85%;padding:.7rem 1rem;border-radius:18px;
+      font-size:.95rem;line-height:1.35;
+      overflow-x:auto;overflow-y:visible!important;max-height:none!important;
+      scrollbar-width:none;-ms-overflow-style:none;
+      animation:fadeInMsg .25s ease-out both;
+    }
     .message::-webkit-scrollbar{display:none}
+    @keyframes fadeInMsg{from{opacity:0;transform:translateY(6px)}
+                         to  {opacity:1;transform:translateY(0)}}
 
-    .user{align-self:flex-end;background:var(--welpy-green);color:#fff;
-      white-space:pre-line;}               /* mantiene \n dell’utente        */
-    .bot {align-self:flex-start;background:#fff;color:#333;max-width:100%;
-      white-space:normal;}                 /* evita doppi newline            */
+    .user{align-self:flex-end;background:var(--welpy-green);color:#fff;white-space:pre-line}
+    .bot {align-self:flex-start;background:#fff;color:#333;max-width:100%;white-space:normal}
 
-    /* markdown styling */
-    .bot ul,.bot ol{margin:.4rem 0;padding-left:1.2rem}
+    /* markdown base */
+    .bot ul,.bot ol{margin:.45rem 0;padding-left:1.2rem}
     .bot ul{list-style-type:disc}
     .bot ol{list-style-type:decimal}
     .bot strong{font-weight:700}
     .bot em{font-style:italic}
 
-    /* tabelle allineate */
-    .bot table{border-collapse:collapse;margin:.3rem 0;width:100%;min-width:560px}
-    .bot th,.bot td{border:1px solid #ccc;padding:.35rem .6rem;text-align:left;
+    /* tabelle */
+    .bot table{border-collapse:collapse;margin:.35rem 0;width:100%;min-width:560px}
+    .bot th,.bot td{border:1px solid #ccc;padding:.4rem .65rem;text-align:left;
       vertical-align:top;word-break:break-word}
     .bot th{background:var(--welpy-light);font-weight:600}
 
     /* typing */
-    .typing{align-self:flex-start;background:#fff;color:#333;border-radius:1rem;
+    .typing{align-self:flex-start;background:#fff;color:#333;border-radius:18px;
       padding:.6rem 1rem;font-size:.95rem;display:flex;gap:4px;max-width:fit-content}
     .typing span{animation:blink 1.2s infinite;animation-delay:calc(var(--i)*.2s);opacity:.4}
     @keyframes blink{0%,100%{opacity:.2}50%{opacity:1}}
 
-    /* code block */
+    /* code */
     .code-block{background:#f7f7f7;border:1px solid #ddd;border-radius:6px;
-      padding:.5rem;font-family:Consolas,monospace;font-size:.9rem;white-space:pre-wrap}
+      padding:.55rem;font-family:Consolas,monospace;font-size:.88rem;white-space:pre-wrap}
 
     /* input */
     #chat-form{display:flex;border-top:1px solid #ddd}
-    #chat-input{flex:1;border:none;padding:.9rem;font-size:1rem;outline:none}
-    #chat-send{background:var(--welpy-green);color:#fff;border:none;padding:0 1rem;
-      font-size:1.1rem;cursor:pointer}
+    #chat-input{flex:1;border:none;padding:1rem;font-size:1rem;outline:none}
+    #chat-send{background:var(--welpy-green);color:#fff;border:none;padding:0 1.05rem;
+      font-size:1.15rem;cursor:pointer;transition:background .25s}
+    #chat-send:hover{background:var(--welpy-green-dark)}
 
     /* prompt chip */
-    #chat-prompts{padding:.5rem 1rem;display:flex;flex-wrap:wrap;gap:6px;
+    #chat-prompts{padding:.6rem 1rem;display:flex;flex-wrap:wrap;gap:7px;
       background:var(--welpy-light);border-top:1px solid #ccc}
-    .prompt{background:var(--welpy-gray);padding:.5rem .9rem;border-radius:20px;
-      cursor:pointer;font-size:.9rem;transition:background .2s}
+    .prompt{background:var(--welpy-gray);padding:.55rem .95rem;border-radius:22px;
+      cursor:pointer;font-size:.9rem;transition:background .2s,color .2s}
     .prompt:hover{background:var(--welpy-green);color:#fff}
+
+    /* disclaimer */
+    #chat-disclaimer{
+      font-size:.72rem;color:#666;text-align:center;padding:.45rem .9rem;
+      background:#fafafa;border-top:1px solid #e0e0e0;
+    }
 
     @media(max-width:420px){#chat-widget{width:95%;right:2.5%}}
   </style>
 </head>
 <body>
 
+<!-- FAB -->
 <div id="chat-toggle">💬</div>
 
+<!-- Widget -->
 <div id="chat-widget">
   <div id="chat-header">Hai bisogno di aiuto?
     <div id="chat-restart" title="Riavvia">⟳</div>
@@ -128,27 +151,26 @@
     <input id="chat-input" type="text" placeholder="Scrivi qui..." autocomplete="off" required>
     <button id="chat-send" type="submit">➤</button>
   </form>
+
+  <!-- DISCLAIMER -->
+  <div id="chat-disclaimer">
+    Beta: l’assistente potrebbe contenere imprecisioni. Verifica sempre le informazioni importanti.
+  </div>
 </div>
 
 <script>
-const toggle   = document.getElementById('chat-toggle');
-const widget   = document.getElementById('chat-widget');
-const box      = document.getElementById('chat-box');
-const prompts  = document.querySelectorAll('.prompt');
-const promptBox= document.getElementById('chat-prompts');
-const closeBtn = document.getElementById('chat-close');
-const restart  = document.getElementById('chat-restart');
-const form     = document.getElementById('chat-form');
-const input    = document.getElementById('chat-input');
+const $ = q => document.querySelector(q);
+const widget = $('#chat-widget'), box = $('#chat-box'), toggle = $('#chat-toggle');
+const closeBtn = $('#chat-close'), restartBtn = $('#chat-restart');
+const form = $('#chat-form'), input = $('#chat-input');
+const promptBox = $('#chat-prompts'), prompts = document.querySelectorAll('.prompt');
 
 let threadId=null, firstMsg=false;
 
-/* helpers */
-function appendMessage(html,sender){
-  const m=document.createElement('div');
-  m.className=`message ${sender}`;
-  if(sender==='bot') m.innerHTML=marked.parse(html);
-  else               m.textContent=html;
+/* UI helpers */
+function appendMessage(txt, sender){
+  const m=document.createElement('div'); m.className=`message ${sender}`;
+  m.innerHTML = sender==='bot' ? marked.parse(txt) : txt;
   box.appendChild(m); box.scrollTop=box.scrollHeight;
 }
 function showTyping(){
@@ -157,12 +179,12 @@ function showTyping(){
     s.style.setProperty('--i',i);t.appendChild(s);}
   box.appendChild(t);box.scrollTop=box.scrollHeight;
 }
-const removeTyping=()=>document.getElementById('typing-indicator')?.remove();
+const removeTyping = () => $('#typing-indicator')?.remove();
 
-/* UI */
+/* open / close */
 toggle.onclick = ()=>widget.style.display='flex';
-closeBtn.onclick= ()=>widget.style.display='none';
-restart.onclick = ()=>{threadId=null;firstMsg=false;box.innerHTML='';promptBox.style.display='flex';};
+closeBtn.onclick = ()=>widget.style.display='none';
+restartBtn.onclick= ()=>{threadId=null;firstMsg=false;box.innerHTML='';promptBox.style.display='flex';};
 
 /* send */
 async function sendMessage(txt){
@@ -171,23 +193,22 @@ async function sendMessage(txt){
   if(!firstMsg){firstMsg=true;promptBox.style.display='none';}
   showTyping();
   try{
-    const res=await fetch('https://welpy-1.onrender.com/chat',{
+    const res = await fetch('https://welpy-1.onrender.com/chat',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({message:txt,thread_id:threadId})
     });
-    const data=await res.json();threadId=data.thread_id;
-    let raw=typeof data.response==='string'?data.response:JSON.stringify(data.response,null,2);
-    const clean=raw.replace(/^```(?:markdown)?\n?/i,'').replace(/```$/,'');
-    removeTyping();appendMessage(clean,'bot');
+    const data = await res.json(); threadId=data.thread_id;
+    let raw = typeof data.response==='string'?data.response:JSON.stringify(data.response,null,2);
+    const clean = raw.replace(/^```(?:markdown)?\n?/i,'').replace(/```$/,'');
+    removeTyping(); appendMessage(clean,'bot');
   }catch{
-    removeTyping();appendMessage('Errore di connessione. Riprova più tardi.','bot');
+    removeTyping(); appendMessage('Errore di connessione. Riprova più tardi.','bot');
   }
 }
 
 /* events */
-form.onsubmit=e=>{e.preventDefault();const v=input.value.trim();if(v)sendMessage(v);}
+form.onsubmit = e=>{e.preventDefault();const v=input.value.trim();if(v)sendMessage(v);}
 prompts.forEach(p=>p.onclick=()=>sendMessage(p.textContent));
 </script>
-
 </body>
 </html>
