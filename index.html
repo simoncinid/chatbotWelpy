@@ -3,135 +3,174 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Welpy Chat – Modern UI v2</title>
+<title>Welpy AI – Ultra UI v3.1</title>
 
-<!-- Marked.js -------------------------------------------------------------->
+<!-- Marked.js -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
-  marked.setOptions({ breaks:true, gfm:true });
-  const renderer = new marked.Renderer();
-  renderer.code = c => `<div class="code-block">${c}</div>`;
-  marked.use({ renderer });
+marked.setOptions({ breaks:true, gfm:true });
+const r = new marked.Renderer();
+r.code = c => `<div class="code-block">${c}</div>`;
+marked.use({ renderer:r });
 </script>
 
-<!-- Modern CSS (oltre 400 righe) ------------------------------------------>
+<!-- ULTRA CSS -->
 <style>
-/* ==========================================================================
-   Welpy Chat – ULTRA Modern UI v3.0 (May 2025)
-   Author: ChatGPT
-   --------------------------------------------------------------------------
-   Complete rewrite with:
-   • Pure icon button (no background change) with aurora glow on hover
-   • Animated frosted‑glass widget with 3‑D parallax gradient highlights
-   • Neon‑glow send button, pill input with focus ripple
-   • Particle shimmer on user messages, morphing blob behind bot messages
-   • 100% motion‑safe, dark‑mode first‑class, RTL‑ready
-   ========================================================================== */
-
-/* ------------------------------------------------ RESET SCOPE ---------- */
-#chat-widget,#chat-widget *,#chat-toggle,#chat-toggle *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-
-/* ------------------------------------------------ ROOT TOKENS ---------- */
+/* =============== TOKENS ============================ */
 :root{
-  /* brand */
-  --wc-primary-h:162;  /* hue */
-  --wc-primary-s:56%;  /* sat */
-  --wc-primary-l:46%;  /* light */
-  --wc-primary: hsl(var(--wc-primary-h) var(--wc-primary-s) var(--wc-primary-l));
-  --wc-primary-light:hsl(var(--wc-primary-h) 64% 72%);
-  --wc-primary-dark:hsl(var(--wc-primary-h) 56% 38%);
-  --wc-bg-glass:rgba(255,255,255,.55);
-  --wc-bg-glass-dark:rgba(20,20,20,.55);
-  --wc-gray-900:#111;
-  --wc-gray-100:#f7f7f7;
-  --wc-radius-lg:1.5rem;
-  --wc-ease-spring:cubic-bezier(.2,.7,.4,1);
-  --wc-dur-fast:150ms;--wc-dur-med:320ms;--wc-dur-slow:900ms;
-  --wc-blur:22px;
-  --wc-shadow-lg:0 18px 42px rgba(0,0,0,.35);
-  --wc-shadow-btn:0 3px 9px rgba(0,0,0,.25);
+  --h:162;--s:58%;--l:46%;
+  --pri: hsl(var(--h) var(--s) var(--l));
+  --pri-light:hsl(var(--h) 72% 78%);
+  --pri-dark :hsl(var(--h) var(--s) 34%);
+  --blur:22px;
+  --rad-lg:1.6rem;--rad-full:9999px;
+  --dur-fast:.15s;--dur-med:.32s;--ease:cubic-bezier(.2,.7,.4,1);
+  --gray-900:#141414;--gray-100:#f5f5f5;
 }
 @media(prefers-color-scheme:dark){
-  :root{--wc-bg-glass:var(--wc-bg-glass-dark);--wc-gray-900:#f8f8f8;--wc-gray-100:#262626;}
+  :root{--gray-900:#f5f5f5;--gray-100:#1e1e1e;}
 }
 
-/* ------------------------------------------------ ICON BUTTON ---------- */
-#chat-toggle{position:fixed;bottom:24px;right:24px;z-index:1060;display:grid;place-items:center;width:110px;height:110px;background:none;border:none;cursor:pointer;transition:transform var(--wc-dur-fast) var(--wc-ease-spring);} 
-#chat-toggle img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 12px rgba(0,0,0,.4));pointer-events:none;}
-#chat-toggle:hover{transform:translateY(-6px) scale(1.06);} 
-#chat-toggle::after{content:"";position:absolute;inset:-4px;border-radius:50%;background:conic-gradient(from 0deg at 50% 50%,hsla(var(--wc-primary-h) 70% 60%/.4) 0deg,transparent 120deg);filter:blur(22px);opacity:0;transition:opacity var(--wc-dur-med) ease-out;} 
-#chat-toggle:hover::after{opacity:1;} 
+/* =============== ICON ============================== */
+#chat-toggle{position:fixed;bottom:24px;right:24px;z-index:9999;
+  width:110px;height:110px;display:grid;place-items:center;background:none;border:none;cursor:pointer;
+  transition:transform var(--dur-fast) var(--ease);}
+#chat-toggle img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(0,0,0,.35));pointer-events:none;}
+#chat-toggle:hover{transform:translateY(-6px) scale(1.05);}
+#chat-toggle::after{content:"";position:absolute;inset:-6px;border-radius:50%;
+  background:conic-gradient(from 0deg at 50% 50%,hsla(var(--h) 80% 65%/.35) 0 140deg,transparent 140deg);
+  filter:blur(24px);opacity:0;transition:opacity var(--dur-med) ease-out;}
+#chat-toggle:hover::after{opacity:1;}
 
-/* ------------------------------------------------ WIDGET SHELL ---------- */
-#chat-widget{position:fixed;bottom:120px;right:20px;width:min(94vw,450px);height:74vh;min-height:500px;border-radius:var(--wc-radius-lg);backdrop-filter:blur(var(--wc-blur)) saturate(180%);background:var(--wc-bg-glass);box-shadow:var(--wc-shadow-lg);display:flex;flex-direction:column;overflow:hidden;transform:translateY(60px) scale(.9);opacity:0;pointer-events:none;transition:transform var(--wc-dur-med) var(--wc-ease-spring),opacity var(--wc-dur-med) ease-out;z-index:1050;}
+/* =============== WIDGET WRAPPER ==================== */
+#chat-widget{position:fixed;bottom:130px;right:20px;
+  width:min(94vw,460px);
+  height:clamp(480px,72vh,650px);   /* non “sfora” più in alto */
+  display:flex;flex-direction:column;overflow:hidden;
+  border-radius:var(--rad-lg);
+  background:rgba(255,255,255,.55);
+  backdrop-filter:blur(var(--blur)) saturate(180%);
+  box-shadow:0 18px 42px rgba(0,0,0,.35);
+  transform:translateY(70px) scale(.9);
+  opacity:0;pointer-events:none;
+  transition:transform var(--dur-med) var(--ease),opacity var(--dur-med) ease-out;
+  z-index:9980;
+}
+/* apertura */
 #chat-widget.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto;}
-/* blob highlight */
-#chat-widget::before{content:"";position:absolute;width:360px;height:360px;top:-160px;right:-120px;background:radial-gradient(circle at center,var(--wc-primary-light) 0%,transparent 70%);filter:blur(120px);opacity:.35;pointer-events:none;transform:translateZ(0);} 
 
-/* ------------------------------------------------ HEADER --------------- */
-#chat-header{position:relative;padding:1rem 3.5rem;font-family:"Poppins",sans-serif;font-size:1.1rem;font-weight:700;color:#fff;text-align:center;text-shadow:0 2px 4px rgba(0,0,0,.25);background:linear-gradient(135deg,var(--wc-primary) 0%,var(--wc-primary-dark) 100%);} 
-#chat-header::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,transparent 0%,rgba(255,255,255,.18) 100%);mix-blend-mode:overlay;pointer-events:none;}
-#chat-close,#chat-restart{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;display:grid;place-items:center;font-size:1.2rem;color:#fff;border-radius:50%;background:rgba(255,255,255,.25);backdrop-filter:blur(4px);cursor:pointer;transition:transform var(--wc-dur-fast) var(--wc-ease-spring),background var(--wc-dur-fast) ease-out;}
-#chat-close{right:16px}#chat-restart{left:16px}
-#chat-close:hover,#chat-restart:hover{background:rgba(255,255,255,.4);transform:scale(1.15);}#chat-close:active,#chat-restart:active{transform:scale(.9);} 
+/* galaxy blob */
+#chat-widget::before{content:"";position:absolute;top:-180px;right:-140px;width:380px;height:380px;
+  background:radial-gradient(circle at center,var(--pri-light) 0%,transparent 70%);
+  filter:blur(130px);opacity:.45;pointer-events:none;transform:translateZ(0);}
+@media(prefers-color-scheme:dark){
+  #chat-widget{background:rgba(25,25,25,.55);}
+}
 
-/* ------------------------------------------------ CHAT BOX ------------- */
-#chat-box{flex:1;display:flex;flex-direction:column;gap:1.2rem;padding:1.6rem 1.8rem;overflow-y:auto;scroll-behavior:smooth;}
-#chat-box::-webkit-scrollbar{width:10px}#chat-box::-webkit-scrollbar-track{background:transparent}#chat-box::-webkit-scrollbar-thumb{background:var(--wc-primary-light);border-radius:5px;}#chat-box:hover::-webkit-scrollbar-thumb{background:var(--wc-primary);} 
+/* =============== HEADER ============================ */
+#chat-header{position:relative;padding:1.05rem 3.5rem;
+  background:linear-gradient(135deg,var(--pri) 0%,var(--pri-dark) 100%);
+  color:#fff;font:700 1.15rem/1 'Poppins',sans-serif;text-align:center;
+  text-shadow:0 2px 5px rgba(0,0,0,.3);}
+#chat-header::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 0%,rgba(255,255,255,.18) 100%);
+  mix-blend-mode:overlay;}
+#chat-close,#chat-restart{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;
+  display:grid;place-items:center;font-size:1.25rem;color:#fff;border-radius:50%;
+  background:rgba(255,255,255,.28);backdrop-filter:blur(4px);cursor:pointer;
+  transition:background var(--dur-fast) ease-out,transform var(--dur-fast) var(--ease);}
+#chat-close{right:16px;}#chat-restart{left:16px;}
+#chat-close:hover,#chat-restart:hover{background:rgba(255,255,255,.42);transform:scale(1.15);}
+#chat-close:active,#chat-restart:active{transform:scale(.9);}
 
-/* ------------------------------------------------ MESSAGE BUBBLES ------ */
-.message{max-width:84%;position:relative;padding:1rem 1.25rem;border-radius:1.4rem;font-size:.96rem;line-height:1.5;font-family:"Inter",system-ui,sans-serif;animation:fadeSlide .28s var(--wc-ease-spring) both;} @keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.user{align-self:flex-end;color:#fff;background:linear-gradient(145deg,var(--wc-primary) 0%,var(--wc-primary-dark) 100%);box-shadow:0 3px 8px rgba(0,0,0,.3);} 
-.user::after{content:"";position:absolute;inset:-2px;border-radius:inherit;background:conic-gradient(from 90deg at 50% 50%,hsla(var(--wc-primary-h)83% 70%/.35) 0 90deg,transparent 90deg 180deg,hsla(var(--wc-primary-h)83% 70%/.35) 180deg 270deg,transparent 270deg);z-index:-1;filter:blur(14px);opacity:0;transition:opacity .4s ease-out;} .user:hover::after{opacity:.8;}
-.bot{align-self:flex-start;background:rgba(255,255,255,.9);color:var(--wc-gray-900);backdrop-filter:blur(6px);border:1px solid rgba(0,0,0,.05);} 
-.bot::before{content:"";position:absolute;inset:0;background:linear-gradient(60deg,rgba(255,255,255,.25) 0%,transparent 60%);mix-blend-mode:overlay;opacity:.35;pointer-events:none;} 
-@media(prefers-color-scheme:dark){.bot{background:rgba(35,35,35,.83);color:var(--wc-gray-100);} }
+/* =============== BOX SCROLL ======================== */
+#chat-box{flex:1;display:flex;flex-direction:column;gap:1.2rem;padding:1.6rem 1.9rem;overflow-y:auto;scroll-behavior:smooth;}
+#chat-box::-webkit-scrollbar{width:10px}
+#chat-box::-webkit-scrollbar-thumb{background:var(--pri-light);border-radius:5px;}
+#chat-box:hover::-webkit-scrollbar-thumb{background:var(--pri);}
 
-/* markdown */
-.bot ul,.bot ol{margin:.6rem 0 .6rem 1.4rem;padding-left:0.2rem}
-.bot strong{font-weight:700;}
+/* =============== MESSAGE BUBBLES =================== */
+.message{position:relative;max-width:85%;padding:1.05rem 1.3rem;border-radius:1.5rem;
+  font:400 .96rem/1.5 'Inter',sans-serif;animation:fadeSlide .26s var(--ease) both;}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* ------------------------------------------------ TYPING -------------- */
-.typing{align-self:flex-start;display:inline-flex;gap:6px;padding:.7rem 1.1rem;border-radius:1.4rem;background:rgba(255,255,255,.8);backdrop-filter:blur(8px);} 
-.typing span{display:block;width:10px;height:10px;border-radius:50%;background:var(--wc-primary);animation:blink 1.4s infinite;} .typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,100%{transform:scale(.6);opacity:.4}50%{transform:scale(1);opacity:1}}
+/* utente */
+.user{align-self:flex-end;background:linear-gradient(140deg,var(--pri) 0%,var(--pri-dark) 100%);color:#fff;
+  box-shadow:0 4px 12px rgba(0,0,0,.28);}
+.user::after{content:"";position:absolute;inset:-3px;border-radius:inherit;
+  background:conic-gradient(from 90deg,hsla(var(--h)90% 70%/.35) 0 90deg,transparent 90deg 180deg,
+  hsla(var(--h)90% 70%/.35) 180deg 270deg,transparent 270deg);
+  filter:blur(14px);z-index:-1;opacity:0;transition:opacity .4s ease-out;}
+.user:hover::after{opacity:.9;}
 
-/* ------------------------------------------------ PROMPTS ------------- */
-#chat-prompts{display:flex;flex-wrap:wrap;gap:.6rem;padding:1rem 1.5rem;background:rgba(255,255,255,.55);backdrop-filter:blur(14px);}
-.prompt{padding:.55rem 1.15rem;font-size:.9rem;border-radius:999px;background:var(--wc-gray-100);cursor:pointer;transition:transform var(--wc-dur-fast) var(--wc-ease-spring),background var(--wc-dur-fast) ease-out;}
-.prompt:hover{background:var(--wc-primary-light);transform:translateY(-3px);} 
+/* bot – frosted‑glass verde chiarissimo */
+.bot{align-self:flex-start;
+  background:hsla(var(--h) 60% 94%/.62);       /* leggero verde */
+  border:1px solid hsla(var(--h) 60% 40%/.08);
+  backdrop-filter:blur(8px);
+  color:var(--gray-900);}
+.bot::before{content:"";position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(70deg,rgba(255,255,255,.25) 0%,transparent 60%);
+  mix-blend-mode:overlay;pointer-events:none;opacity:.4;}
+@media(prefers-color-scheme:dark){.bot{background:rgba(40,70,60,.46);color:var(--gray-100);}}
 
-/* ------------------------------------------------ INPUT AREA ---------- */
-#chat-form{display:flex;gap:.4rem;align-items:center;padding:1rem 1.5rem;background:rgba(255,255,255,.4);backdrop-filter:blur(14px);border-top:1px solid rgba(0,0,0,.05);} 
-#chat-input{flex:1;padding:.85rem 1.2rem;font-size:1rem;border:none;border-radius:999px;background:rgba(255,255,255,.75);backdrop-filter:blur(10px);color:var(--wc-gray-900);transition:box-shadow var(--wc-dur-fast) ease-in-out;} 
-#chat-input:focus{outline:none;box-shadow:0 0 0 3px var(--wc-primary-light);} 
-#chat-input::placeholder{color:var(--wc-gray-500);} 
+/* markdown lists */
+.bot ul,.bot ol{margin:.6rem 0 .6rem 1.4rem;padding-left:.2rem}
+.bot strong{font-weight:700}
 
-#chat-send{width:48px;height:48px;display:grid;place-items:center;border:none;border-radius:50%;background:var(--wc-primary);color:#fff;font-size:1.4rem;cursor:pointer;box-shadow:var(--wc-shadow-btn);transition:transform var(--wc-dur-fast) var(--wc-ease-spring),box-shadow var(--wc-dur-fast) ease-out;background-image:linear-gradient(140deg,var(--wc-primary-light),var(--wc-primary-dark));}
-#chat-send:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 6px 18px rgba(0,0,0,.3);}#chat-send:active{transform:scale(.9);} 
+/* =============== TYPING ============================ */
+.typing{align-self:flex-start;display:inline-flex;gap:6px;padding:.75rem 1.2rem;border-radius:1.5rem;
+  background:rgba(255,255,255,.85);backdrop-filter:blur(8px);}
+.typing span{width:10px;height:10px;border-radius:50%;background:var(--pri);animation:blink 1.4s infinite;}
+.typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{transform:scale(.6);opacity:.35}50%{transform:scale(1);opacity:1}}
 
-/* ------------------------------------------------ CODE BLOCK ---------- */
-.code-block{background:#101010;color:#e2e8f0;border:1px solid #1f1f1f;border-radius:10px;padding:1rem 1.2rem;font-family:"JetBrains Mono",Consolas,monospace;font-size:.86rem;white-space:pre-wrap;overflow-x:auto;box-shadow:inset 0 0 12px rgba(0,0,0,.45);} 
+/* =============== PROMPTS =========================== */
+#chat-prompts{display:flex;flex-wrap:wrap;gap:.7rem;padding:1rem 1.5rem;background:rgba(255,255,255,.50);backdrop-filter:blur(14px);}
+.prompt{padding:.6rem 1.2rem;font-size:.9rem;border-radius:999px;background:var(--gray-100);cursor:pointer;
+  transition:transform var(--dur-fast) var(--ease),background var(--dur-fast) ease-out;}
+.prompt:hover{background:var(--pri-light);transform:translateY(-3px);}
+@media(prefers-color-scheme:dark){.prompt{background:#333;color:#ddd}.prompt:hover{background:var(--pri-dark);color:#fff;}}
 
-/* ------------------------------------------------ DISCLAIMER ---------- */
-#chat-disclaimer{font-size:.75rem;text-align:center;padding:.6rem 1.2rem;color:var(--wc-gray-500);background:rgba(255,255,255,.45);backdrop-filter:blur(12px);} @media(prefers-color-scheme:dark){#chat-disclaimer{background:rgba(35,35,35,.55);color:var(--wc-gray-700);} }
+/* =============== INPUT & SEND ====================== */
+#chat-form{display:flex;gap:.55rem;align-items:center;padding:1.15rem 1.6rem;
+  background:rgba(255,255,255,.42);backdrop-filter:blur(16px);border-top:1px solid rgba(0,0,0,.05);}
+#chat-input{flex:1;padding:.9rem 1.4rem;font-size:1rem;border:none;border-radius:999px;
+  background:rgba(255,255,255,.75);backdrop-filter:blur(12px);color:var(--gray-900);
+  transition:box-shadow var(--dur-fast) ease-out;}
+#chat-input::placeholder{color:#888;}
+#chat-input:focus{outline:none;box-shadow:0 0 0 3px var(--pri-light);}
+#chat-send{width:54px;height:54px;display:grid;place-items:center;border:none;border-radius:50%;
+  font-size:1.45rem;color:#fff;cursor:pointer;
+  background:linear-gradient(140deg,var(--pri-light),var(--pri-dark));
+  box-shadow:0 4px 14px rgba(0,0,0,.3);
+  transition:transform var(--dur-fast) var(--ease),box-shadow var(--dur-fast) ease-out;}
+#chat-send:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 7px 22px rgba(0,0,0,.35);}
+#chat-send:active{transform:scale(.9);}
 
-/* ------------------------------------------------ REDUCED MOTION ----- */
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+/* =============== CODE BLOCK ======================== */
+.code-block{background:#101010;color:#e2e8f0;border:1px solid #1f1f1f;border-radius:10px;
+  padding:1rem 1.2rem;font-family:"JetBrains Mono",Consolas,monospace;font-size:.87rem;overflow-x:auto;}
 
+/* =============== DISCLAIMER ======================== */
+#chat-disclaimer{font-size:.75rem;text-align:center;padding:.65rem 1.4rem;color:#777;
+  background:rgba(255,255,255,.50);backdrop-filter:blur(12px);}
+@media(prefers-color-scheme:dark){#chat-disclaimer{background:rgba(30,30,30,.55);color:#999;}}
 
+/* =============== MOTION‑SAFE ======================= */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
 </style>
 </head>
 <body>
 
-<!-- FAB ------------------------------------------------------------------>
-<div id="chat-toggle">
-  <img src="icon.png" alt="Chat">
-</div>
+<!-- ICON -->
+<div id="chat-toggle"><img src="./chat-icon.png" alt="Chat"></div>
 
-<!-- Widget ------------------------------------------------------------- -->
+<!-- WIDGET -->
 <div id="chat-widget">
-  <div id="chat-header">Hai bisogno di aiuto?
+  <div id="chat-header">Welpy AI
     <div id="chat-restart" title="Riavvia">⟳</div>
     <div id="chat-close"   title="Chiudi">×</div>
   </div>
@@ -155,85 +194,46 @@
   </div>
 </div>
 
-<!-- JavaScript --------------------------------------------------------- -->
+<!-- JS -->
 <script>
-/* — Welpy Chat – Inline JS v2 — */
 window.addEventListener('DOMContentLoaded', () => {
-  /* Marked già configurato nello <head> */
+  const $ = s => document.querySelector(s);
+  const widget = $('#chat-widget'), toggle = $('#chat-toggle'),
+        closeBtn = $('#chat-close'), restartBtn = $('#chat-restart'),
+        box = $('#chat-box'), form = $('#chat-form'), input = $('#chat-input'),
+        promptBox = $('#chat-prompts'), prompts = document.querySelectorAll('.prompt');
 
-  /* DOM -------------------------------------------------- */
-  const $ = q => document.querySelector(q);
-  const widget   = $('#chat-widget'),
-        toggle   = $('#chat-toggle'),
-        closeBtn = $('#chat-close'),
-        restartBtn = $('#chat-restart'),
-        box   = $('#chat-box'),
-        form  = $('#chat-form'),
-        input = $('#chat-input'),
-        promptBox = $('#chat-prompts'),
-        prompts   = document.querySelectorAll('.prompt');
+  let threadId=null, firstMsg=false;
 
-  let threadId = null, firstMsg = false;
-
-  /* UI helpers ------------------------------------------ */
-  function appendMessage(txt, sender){
-    const m = document.createElement('div');
-    m.className = `message ${sender}`;
-    m.innerHTML = sender === 'bot' ? marked.parse(txt) : txt;
-    box.appendChild(m);
-    box.scrollTop = box.scrollHeight;
-  }
-  function showTyping(){
-    const t = document.createElement('div');
-    t.className = 'typing'; t.id = 'typing-indicator';
-    for (let i = 1; i <= 3; i++){
-      const s = document.createElement('span');
-      s.textContent = '●'; s.style.setProperty('--i', i);
-      t.appendChild(s);
-    }
-    box.appendChild(t); box.scrollTop = box.scrollHeight;
-  }
+  /* helpers */
+  const append = (html,cls) => { const d=document.createElement('div');d.className=`message ${cls}`;d.innerHTML=cls==='bot'?marked.parse(html):html;box.appendChild(d);box.scrollTop=box.scrollHeight; };
+  const showTyping = () => { const t=document.createElement('div');t.className='typing';t.id='typing-indicator';for(let i=0;i<3;i++){const s=document.createElement('span');t.appendChild(s);}box.appendChild(t);box.scrollTop=box.scrollHeight; };
   const removeTyping = () => document.getElementById('typing-indicator')?.remove();
 
-  /* Toggle widget --------------------------------------- */
-  function openWidget(){
-    widget.classList.add('open');
-    toggle.classList.add('active');
-  }
-  function closeWidget(){
-    widget.classList.remove('open');
-    toggle.classList.remove('active');
-  }
-  toggle.onclick   = () => widget.classList.contains('open') ? closeWidget() : openWidget();
-  closeBtn.onclick = closeWidget;
-  restartBtn.onclick = () => {
-    threadId = null; firstMsg = false; box.innerHTML = '';
-    promptBox.style.display = 'flex';
-  };
+  /* open/close */
+  const open = ()=>{widget.classList.add('open');};
+  const close = ()=>{widget.classList.remove('open');};
+  toggle.onclick = ()=> widget.classList.contains('open') ? close() : open();
+  closeBtn.onclick = close;
+  restartBtn.onclick = ()=>{threadId=null;firstMsg=false;box.innerHTML='';promptBox.style.display='flex';};
 
-  /* Send ------------------------------------------------ */
-  async function sendMessage(txt){
-    appendMessage(txt,'user'); input.value='';
-    if(!firstMsg){ firstMsg = true; promptBox.style.display = 'none'; }
+  /* send */
+  async function send(msg){
+    append(msg,'user');input.value='';
+    if(!firstMsg){firstMsg=true;promptBox.style.display='none';}
     showTyping();
     try{
-      const res = await fetch('https://welpy-1.onrender.com/chat',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ message:txt, thread_id:threadId })
-      });
-      const data = await res.json(); threadId = data.thread_id;
-      const raw   = typeof data.response === 'string'
-                      ? data.response
-                      : JSON.stringify(data.response,null,2);
-      const clean = raw.replace(/^```(?:markdown)?\\n?/i,'').replace(/```$/,'');
-      removeTyping(); appendMessage(clean,'bot');
-    }catch{
-      removeTyping(); appendMessage('Errore di connessione. Riprova più tardi.','bot');
-    }
+      const r = await fetch('https://welpy-1.onrender.com/chat',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({message:msg,thread_id:threadId})});
+      const j = await r.json();threadId=j.thread_id;
+      const raw=typeof j.response==='string'?j.response:JSON.stringify(j.response,null,2);
+      const clean=raw.replace(/^```(?:markdown)?\n?/i,'').replace(/```$/,'');
+      removeTyping();append(clean,'bot');
+    }catch{removeTyping();append('Errore di connessione. Riprova più tardi.','bot');}
   }
-  form.onsubmit = e => { e.preventDefault(); const v = input.value.trim(); if(v) sendMessage(v); };
-  prompts.forEach(p => p.onclick = () => sendMessage(p.textContent));
+  form.onsubmit = e=>{e.preventDefault();const v=input.value.trim();if(v)send(v);};
+  prompts.forEach(p=>p.onclick=()=>send(p.textContent));
 });
 </script>
 </body>
