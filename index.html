@@ -3,35 +3,42 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Welpy AI – Ultra UI v3.1</title>
+<title>Welpy AI – Ultra UI v4</title>
+
+<!-- Google Fonts -->
+
 
 <!-- Marked.js -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
 marked.setOptions({ breaks:true, gfm:true });
-const r = new marked.Renderer();
-r.code = c => `<div class="code-block">${c}</div>`;
-marked.use({ renderer:r });
+const renderer = new marked.Renderer();
+renderer.code = c => `<div class="code-block">${c}</div>`;
+marked.use({ renderer });
 </script>
 
-<!-- ULTRA CSS -->
+<!-- ULTRA CSS v4 -->
 <style>
-/* =============== TOKENS ============================ */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+
+/* ─── TOKENS ────────────────────────────────────────── */
 :root{
   --h:162;--s:58%;--l:46%;
-  --pri: hsl(var(--h) var(--s) var(--l));
-  --pri-light:hsl(var(--h) 72% 78%);
-  --pri-dark :hsl(var(--h) var(--s) 34%);
+  --pri:hsl(var(--h) var(--s) var(--l));
+  --pri-light:hsl(var(--h) 74% 78%);
+  --pri-dark:hsl(var(--h) 58% 28%);
   --blur:22px;
   --rad-lg:1.6rem;--rad-full:9999px;
-  --dur-fast:.15s;--dur-med:.32s;--ease:cubic-bezier(.2,.7,.4,1);
-  --gray-900:#141414;--gray-100:#f5f5f5;
+  --dur-fast:.16s;--dur-med:.34s;--ease:cubic-bezier(.2,.7,.4,1);
+  --gray-900:#141414;--gray-100:#fafafa;
 }
 @media(prefers-color-scheme:dark){
-  :root{--gray-900:#f5f5f5;--gray-100:#1e1e1e;}
+  :root{--gray-900:#f8f8f8;--gray-100:#1e1e1e;}
 }
+/* font di base per tutto il widget  */
+#chat-widget,*[id^="chat-"]{font-family:'IBM Plex Serif',serif;}
 
-/* =============== ICON ============================== */
+/* ─── ICON ──────────────────────────────────────────── */
 #chat-toggle{position:fixed;bottom:24px;right:24px;z-index:9999;
   width:110px;height:110px;display:grid;place-items:center;background:none;border:none;cursor:pointer;
   transition:transform var(--dur-fast) var(--ease);}
@@ -42,122 +49,104 @@ marked.use({ renderer:r });
   filter:blur(24px);opacity:0;transition:opacity var(--dur-med) ease-out;}
 #chat-toggle:hover::after{opacity:1;}
 
-/* =============== WIDGET WRAPPER ==================== */
-#chat-widget{position:fixed;bottom:130px;right:20px;
-  width:min(94vw,460px);
-  height:clamp(480px,72vh,650px);   /* non “sfora” più in alto */
-  display:flex;flex-direction:column;overflow:hidden;
-  border-radius:var(--rad-lg);
-  background:rgba(255,255,255,.55);
-  backdrop-filter:blur(var(--blur)) saturate(180%);
-  box-shadow:0 18px 42px rgba(0,0,0,.35);
-  transform:translateY(70px) scale(.9);
-  opacity:0;pointer-events:none;
-  transition:transform var(--dur-med) var(--ease),opacity var(--dur-med) ease-out;
-  z-index:9980;
-}
-/* apertura */
+/* ─── WIDGET SHELL ─────────────────────────────────── */
+#chat-widget{position:fixed;bottom:130px;right:20px;width:min(94vw,460px);
+  height:clamp(480px,72vh,640px);display:flex;flex-direction:column;overflow:hidden;
+  border-radius:var(--rad-lg);background:rgba(255,255,255,.55);
+  backdrop-filter:blur(var(--blur)) saturate(180%);box-shadow:0 18px 42px rgba(0,0,0,.35);
+  transform:translateY(70px) scale(.9);opacity:0;pointer-events:none;
+  transition:transform var(--dur-med) var(--ease),opacity var(--dur-med) ease-out;z-index:9980;}
 #chat-widget.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto;}
+@media(prefers-color-scheme:dark){#chat-widget{background:rgba(25,25,25,.55);}}
 
 /* galaxy blob */
 #chat-widget::before{content:"";position:absolute;top:-180px;right:-140px;width:380px;height:380px;
-  background:radial-gradient(circle at center,var(--pri-light) 0%,transparent 70%);
-  filter:blur(130px);opacity:.45;pointer-events:none;transform:translateZ(0);}
-@media(prefers-color-scheme:dark){
-  #chat-widget{background:rgba(25,25,25,.55);}
-}
+  background:radial-gradient(circle,var(--pri-light) 0%,transparent 70%);filter:blur(130px);
+  opacity:.45;pointer-events:none;transform:translateZ(0);}
 
-/* =============== HEADER ============================ */
-#chat-header{position:relative;padding:1.05rem 3.5rem;
-  background:linear-gradient(135deg,var(--pri) 0%,var(--pri-dark) 100%);
-  color:#fff;font:700 1.15rem/1 'Poppins',sans-serif;text-align:center;
-  text-shadow:0 2px 5px rgba(0,0,0,.3);}
+/* ─── HEADER ────────────────────────────────────────── */
+#chat-header{position:relative;padding:1.05rem 3.5rem;background:linear-gradient(135deg,var(--pri) 0%,var(--pri-dark) 100%);
+  color:#fff;font-family:'IBM Plex Serif',serif;text-align:center;text-shadow:0 2px 5px rgba(0,0,0,.3);}
 #chat-header::after{content:"";position:absolute;inset:0;
   background:linear-gradient(135deg,transparent 0%,rgba(255,255,255,.18) 100%);
-  mix-blend-mode:overlay;}
+  mix-blend-mode:overlay;pointer-events:none;}           /* fix click  */
 #chat-close,#chat-restart{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;
-  display:grid;place-items:center;font-size:1.25rem;color:#fff;border-radius:50%;
+  display:grid;place-items:center;font-size:1.3rem;color:#fff;border-radius:50%;
   background:rgba(255,255,255,.28);backdrop-filter:blur(4px);cursor:pointer;
   transition:background var(--dur-fast) ease-out,transform var(--dur-fast) var(--ease);}
 #chat-close{right:16px;}#chat-restart{left:16px;}
 #chat-close:hover,#chat-restart:hover{background:rgba(255,255,255,.42);transform:scale(1.15);}
-#chat-close:active,#chat-restart:active{transform:scale(.9);}
+#chat-close:active,#chat-restart:active{transform:scale(.88);}
 
-/* =============== BOX SCROLL ======================== */
-#chat-box{flex:1;display:flex;flex-direction:column;gap:1.2rem;padding:1.6rem 1.9rem;overflow-y:auto;scroll-behavior:smooth;}
+/* ─── BOX + PATTERN ────────────────────────────────── */
+#chat-box{flex:1;position:relative;display:flex;flex-direction:column;gap:1.2rem;
+  padding:1.6rem 1.9rem;overflow-y:auto;scroll-behavior:smooth;}
+/* pattern puntinato */
+#chat-box::before{content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 1px 1px,rgba(0,0,0,.06) 0 1px,transparent 1px);
+  background-size:7px 7px;opacity:.08;pointer-events:none;}
 #chat-box::-webkit-scrollbar{width:10px}
 #chat-box::-webkit-scrollbar-thumb{background:var(--pri-light);border-radius:5px;}
 #chat-box:hover::-webkit-scrollbar-thumb{background:var(--pri);}
 
-/* =============== MESSAGE BUBBLES =================== */
-.message{position:relative;max-width:85%;padding:1.05rem 1.3rem;border-radius:1.5rem;
-  font:400 .96rem/1.5 'Inter',sans-serif;animation:fadeSlide .26s var(--ease) both;}
+/* ─── BUBBLES GLASS ────────────────────────────────── */
+.message{position:relative;max-width:85%;padding:1rem 1.25rem;border-radius:1.4rem;
+  backdrop-filter:blur(12px) saturate(160%);border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.35);font-size:.95rem;line-height:1.55;
+  animation:fadeSlide .26s var(--ease) both;color:var(--gray-900);}
 @keyframes fadeSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* utente */
-.user{align-self:flex-end;background:linear-gradient(140deg,var(--pri) 0%,var(--pri-dark) 100%);color:#fff;
-  box-shadow:0 4px 12px rgba(0,0,0,.28);}
-.user::after{content:"";position:absolute;inset:-3px;border-radius:inherit;
-  background:conic-gradient(from 90deg,hsla(var(--h)90% 70%/.35) 0 90deg,transparent 90deg 180deg,
-  hsla(var(--h)90% 70%/.35) 180deg 270deg,transparent 270deg);
-  filter:blur(14px);z-index:-1;opacity:0;transition:opacity .4s ease-out;}
-.user:hover::after{opacity:.9;}
+/* utente: tinta verde */
+.user{align-self:flex-end;background:linear-gradient(145deg,hsla(var(--h) 50% 55%/.55),hsla(var(--h) 60% 42%/.55)),rgba(255,255,255,.35);
+  color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.3);}
 
-/* bot – frosted‑glass verde chiarissimo */
-.bot{align-self:flex-start;
-  background:hsla(var(--h) 60% 94%/.62);       /* leggero verde */
-  border:1px solid hsla(var(--h) 60% 40%/.08);
-  backdrop-filter:blur(8px);
-  color:var(--gray-900);}
-.bot::before{content:"";position:absolute;inset:0;border-radius:inherit;
-  background:linear-gradient(70deg,rgba(255,255,255,.25) 0%,transparent 60%);
-  mix-blend-mode:overlay;pointer-events:none;opacity:.4;}
-@media(prefers-color-scheme:dark){.bot{background:rgba(40,70,60,.46);color:var(--gray-100);}}
+/* bot: vetro più chiaro */
+.bot{align-self:flex-start;}
 
-/* markdown lists */
-.bot ul,.bot ol{margin:.6rem 0 .6rem 1.4rem;padding-left:.2rem}
+/* markdown */
+.bot ul,.bot ol{margin:.55rem 0 .55rem 1.4rem;padding-left:.3rem}
 .bot strong{font-weight:700}
 
-/* =============== TYPING ============================ */
-.typing{align-self:flex-start;display:inline-flex;gap:6px;padding:.75rem 1.2rem;border-radius:1.5rem;
-  background:rgba(255,255,255,.85);backdrop-filter:blur(8px);}
-.typing span{width:10px;height:10px;border-radius:50%;background:var(--pri);animation:blink 1.4s infinite;}
+/* ─── TYPING ───────────────────────────────────────── */
+.typing{align-self:flex-start;display:inline-flex;gap:6px;padding:.7rem 1.1rem;border-radius:1.4rem;
+  backdrop-filter:blur(10px);background:rgba(255,255,255,.6);}
+.typing span{width:9px;height:9px;border-radius:50%;background:var(--pri);animation:blink 1.4s infinite;}
 .typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
 @keyframes blink{0%,100%{transform:scale(.6);opacity:.35}50%{transform:scale(1);opacity:1}}
 
-/* =============== PROMPTS =========================== */
-#chat-prompts{display:flex;flex-wrap:wrap;gap:.7rem;padding:1rem 1.5rem;background:rgba(255,255,255,.50);backdrop-filter:blur(14px);}
+/* ─── PROMPTS ──────────────────────────────────────── */
+#chat-prompts{display:flex;flex-wrap:wrap;gap:.7rem;padding:1rem 1.5rem;background:rgba(255,255,255,.48);
+  backdrop-filter:blur(14px);}
 .prompt{padding:.6rem 1.2rem;font-size:.9rem;border-radius:999px;background:var(--gray-100);cursor:pointer;
   transition:transform var(--dur-fast) var(--ease),background var(--dur-fast) ease-out;}
 .prompt:hover{background:var(--pri-light);transform:translateY(-3px);}
 @media(prefers-color-scheme:dark){.prompt{background:#333;color:#ddd}.prompt:hover{background:var(--pri-dark);color:#fff;}}
 
-/* =============== INPUT & SEND ====================== */
+/* ─── INPUT & SEND ────────────────────────────────── */
 #chat-form{display:flex;gap:.55rem;align-items:center;padding:1.15rem 1.6rem;
-  background:rgba(255,255,255,.42);backdrop-filter:blur(16px);border-top:1px solid rgba(0,0,0,.05);}
-#chat-input{flex:1;padding:.9rem 1.4rem;font-size:1rem;border:none;border-radius:999px;
-  background:rgba(255,255,255,.75);backdrop-filter:blur(12px);color:var(--gray-900);
+  background:rgba(255,255,255,.44);backdrop-filter:blur(16px);border-top:1px solid rgba(0,0,0,.05);}
+#chat-input{flex:1;padding:.9rem 1.4rem;border:none;border-radius:999px;font-size:1rem;
+  background:rgba(255,255,255,.78);backdrop-filter:blur(12px);color:var(--gray-900);
   transition:box-shadow var(--dur-fast) ease-out;}
 #chat-input::placeholder{color:#888;}
 #chat-input:focus{outline:none;box-shadow:0 0 0 3px var(--pri-light);}
 #chat-send{width:54px;height:54px;display:grid;place-items:center;border:none;border-radius:50%;
-  font-size:1.45rem;color:#fff;cursor:pointer;
-  background:linear-gradient(140deg,var(--pri-light),var(--pri-dark));
+  font-size:1.45rem;color:#fff;cursor:pointer;background:linear-gradient(145deg,var(--pri-light),var(--pri-dark));
   box-shadow:0 4px 14px rgba(0,0,0,.3);
   transition:transform var(--dur-fast) var(--ease),box-shadow var(--dur-fast) ease-out;}
 #chat-send:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 7px 22px rgba(0,0,0,.35);}
 #chat-send:active{transform:scale(.9);}
 
-/* =============== CODE BLOCK ======================== */
+/* ─── CODE BLOCK ──────────────────────────────────── */
 .code-block{background:#101010;color:#e2e8f0;border:1px solid #1f1f1f;border-radius:10px;
   padding:1rem 1.2rem;font-family:"JetBrains Mono",Consolas,monospace;font-size:.87rem;overflow-x:auto;}
 
-/* =============== DISCLAIMER ======================== */
+/* ─── DISCLAIMER ──────────────────────────────────── */
 #chat-disclaimer{font-size:.75rem;text-align:center;padding:.65rem 1.4rem;color:#777;
-  background:rgba(255,255,255,.50);backdrop-filter:blur(12px);}
+  background:rgba(255,255,255,.5);backdrop-filter:blur(12px);}
 @media(prefers-color-scheme:dark){#chat-disclaimer{background:rgba(30,30,30,.55);color:#999;}}
 
-/* =============== MOTION‑SAFE ======================= */
+/* ─── MOTION‑SAFE ─────────────────────────────────── */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
@@ -206,33 +195,44 @@ window.addEventListener('DOMContentLoaded', () => {
   let threadId=null, firstMsg=false;
 
   /* helpers */
-  const append = (html,cls) => { const d=document.createElement('div');d.className=`message ${cls}`;d.innerHTML=cls==='bot'?marked.parse(html):html;box.appendChild(d);box.scrollTop=box.scrollHeight; };
-  const showTyping = () => { const t=document.createElement('div');t.className='typing';t.id='typing-indicator';for(let i=0;i<3;i++){const s=document.createElement('span');t.appendChild(s);}box.appendChild(t);box.scrollTop=box.scrollHeight; };
+  const append = (html,cls) => {
+    const d=document.createElement('div');
+    d.className=`message ${cls}`;
+    d.innerHTML=cls==='bot'?marked.parse(html):html;
+    box.appendChild(d); box.scrollTop=box.scrollHeight;
+  };
+  const showTyping = () => {
+    const t=document.createElement('div');t.className='typing';t.id='typing-indicator';
+    for(let i=0;i<3;i++){const s=document.createElement('span');t.appendChild(s);}
+    box.appendChild(t); box.scrollTop=box.scrollHeight;
+  };
   const removeTyping = () => document.getElementById('typing-indicator')?.remove();
 
-  /* open/close */
-  const open = ()=>{widget.classList.add('open');};
-  const close = ()=>{widget.classList.remove('open');};
-  toggle.onclick = ()=> widget.classList.contains('open') ? close() : open();
+  /* open / close */
+  const open = ()=>widget.classList.add('open');
+  const close = ()=>widget.classList.remove('open');
+  toggle.onclick   = ()=>widget.classList.contains('open')?close():open();
   closeBtn.onclick = close;
-  restartBtn.onclick = ()=>{threadId=null;firstMsg=false;box.innerHTML='';promptBox.style.display='flex';};
+  restartBtn.onclick = ()=>{
+    threadId=null;firstMsg=false;box.innerHTML='';promptBox.style.display='flex';
+  };
 
   /* send */
   async function send(msg){
-    append(msg,'user');input.value='';
-    if(!firstMsg){firstMsg=true;promptBox.style.display='none';}
+    append(msg,'user'); input.value='';
+    if(!firstMsg){ firstMsg=true; promptBox.style.display='none'; }
     showTyping();
     try{
-      const r = await fetch('https://welpy-1.onrender.com/chat',{
+      const res=await fetch('https://welpy-1.onrender.com/chat',{
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({message:msg,thread_id:threadId})});
-      const j = await r.json();threadId=j.thread_id;
-      const raw=typeof j.response==='string'?j.response:JSON.stringify(j.response,null,2);
+      const data=await res.json(); threadId=data.thread_id;
+      const raw=typeof data.response==='string'?data.response:JSON.stringify(data.response,null,2);
       const clean=raw.replace(/^```(?:markdown)?\n?/i,'').replace(/```$/,'');
-      removeTyping();append(clean,'bot');
-    }catch{removeTyping();append('Errore di connessione. Riprova più tardi.','bot');}
+      removeTyping(); append(clean,'bot');
+    }catch{ removeTyping(); append('Errore di connessione. Riprova più tardi.','bot'); }
   }
-  form.onsubmit = e=>{e.preventDefault();const v=input.value.trim();if(v)send(v);};
+  form.onsubmit = e=>{ e.preventDefault(); const v=input.value.trim(); if(v) send(v); };
   prompts.forEach(p=>p.onclick=()=>send(p.textContent));
 });
 </script>
